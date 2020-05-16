@@ -12,7 +12,7 @@ import Firebase
 class ListEmployeeTableViewController: UITableViewController {
     
     var animals = ["dcvervgr", "edfr3f3rfdc", "edr3f4rvt"]
-    public var employees = [User]()
+    public var employees : [User]?
     
 
     @IBOutlet var listTableView: UITableView!
@@ -22,25 +22,8 @@ class ListEmployeeTableViewController: UITableViewController {
         super.viewDidLoad()
         listTableView.delegate = self;
         listTableView.dataSource = self;
-        let ref = Database.database().reference().child("users");
-
-
+        self.loaddata();
         
-        ref.observe(.childAdded, with: { (snapshot) in
-             if let userDict = snapshot.value as? [String:Any] {
-
-                  //Do not cast print it directly may be score is Int not string
-                let name = userDict["username"] as? String ?? "";
-                let uid = userDict["uid"] as? String ?? ""
-                let age = userDict["age"] as? String ?? ""
-
-                let user = User(uid: uid, name: name, age: age);
-                self.employees.append(user);
-                  print(userDict["username"] ?? [])
-                print(self.employees.count)
-             }
-        }
-    )
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -57,15 +40,14 @@ class ListEmployeeTableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return employees.count;
+        return employees?.count ?? 0;
     }
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath) as! ListTableViewCell
 
-        let curruser = employees[indexPath.row]
-        print(employees.count)
+        let curruser = employees![indexPath.row];
 
         // set the text from the data model
         cell.label1.text = curruser.name;
@@ -74,6 +56,29 @@ class ListEmployeeTableViewController: UITableViewController {
     }
     
 
+    
+    func loaddata()
+    {
+        let ref = Database.database().reference().child("users");
+
+            employees = [User]()
+            
+            ref.observe(.childAdded, with: { (snapshot) in
+                 if let userDict = snapshot.value as? [String:Any] {
+
+                      //Do not cast print it directly may be score is Int not string
+                    let name = userDict["username"] as? String ?? "";
+                    let uid = userDict["uid"] as? String ?? ""
+                    let age = userDict["age"] as? String ?? ""
+
+                    let user = User(uid: uid, name: name, age: age);
+                    self.employees!.append(user);
+                      print(userDict["username"] ?? [])
+                    print(self.employees!.count)
+                 }
+            }
+        )
+    }
     /*
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
