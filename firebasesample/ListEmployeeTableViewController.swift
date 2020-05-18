@@ -1,7 +1,6 @@
 //
 //  ListEmployeeTableViewController.swift
 //  firebasesample
-//
 //  Created by Rizul goyal on 2020-05-15.
 //  Copyright © 2020 Rizul goyal. All rights reserved.
 //
@@ -12,8 +11,8 @@ import Firebase
 class ListEmployeeTableViewController: UITableViewController {
     
     var animals = ["dcvervgr", "edfr3f3rfdc", "edr3f4rvt"]
-    public var employees : [User]?
-    
+    var employees : [User]?;
+
 
     @IBOutlet var listTableView: UITableView!
     
@@ -23,6 +22,8 @@ class ListEmployeeTableViewController: UITableViewController {
         listTableView.delegate = self;
         listTableView.dataSource = self;
         self.loaddata();
+        listTableView.reloadData();
+        
         
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -40,44 +41,53 @@ class ListEmployeeTableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return employees?.count ?? 0;
+        return employees!.count;
+    }
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 93;
     }
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath) as! ListTableViewCell
 
-        let curruser = employees![indexPath.row];
+       let curruser = employees![indexPath.row];
 
         // set the text from the data model
-        cell.label1.text = curruser.name;
-
-        return cell
+        cell.label1.text = "Name: " + curruser.name;
+        cell.label1.textColor = UIColor.blue;
+        cell.label2.text = "UID: " + curruser.uid;
+        cell.label3.text = "Age: " + curruser.age;
+        return cell;
     }
     
 
     
     func loaddata()
     {
+        employees = [User]()
         let ref = Database.database().reference().child("users");
 
-            employees = [User]()
             
             ref.observe(.childAdded, with: { (snapshot) in
                  if let userDict = snapshot.value as? [String:Any] {
-
                       //Do not cast print it directly may be score is Int not string
                     let name = userDict["username"] as? String ?? "";
                     let uid = userDict["uid"] as? String ?? ""
                     let age = userDict["age"] as? String ?? ""
 
                     let user = User(uid: uid, name: name, age: age);
-                    self.employees!.append(user);
-                      print(userDict["username"] ?? [])
+                    self.employees?.append(user);
                     print(self.employees!.count)
                  }
+                self.updateUserInterface();
             }
         )
+    }
+    
+    func updateUserInterface() {
+        // update the UI here using the `userUIDArray` variable
+        listTableView.reloadData()
     }
     /*
     // Override to support conditional editing of the table view.
